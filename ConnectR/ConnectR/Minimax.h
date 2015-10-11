@@ -10,48 +10,54 @@
 #define _MINIMAX_H_
 
 #include <string>
+#include <limits>
+#include <vector>
 
 namespace MiniMax {
 
-	/* Representation of the current game state */
-	struct gameState {
-		int score;
-		std::string board;
-	};
-
 	/* Tree structure used for minimaxing */
 	struct tree {
-		tree* children;
-		gameState state;
+		std::vector<tree> children;
+		std::vector<std::string> board;
+		int score;
 		tree() {}
-		tree(unsigned int m, gameState& s) {
-			children = new tree[m];
-			state = s;
+		tree(size_t m, std::vector<std::string>& b) {
+			children.resize(m);
+			board = b;
 		}
-		~tree() { delete children; }
 	};
 
 	/* Returns the index of the child node of root representing the best move
 	 * found.
 	 * @param root: tree representing current state
-	 * @param depth: how many moves to look ahead
-	 * @param alpha: the alpha value, start with a REALLY low value
-	 * @param beta: the beta value, start with a REALLY high value
-	 * @param myTurn: is it my turn at this depth? (should I min or max?)
 	 */
-	unsigned int alphaBeta
-		(tree& root, unsigned int depth, int alpha, int beta, bool myTurn);
+	const size_t alphaBeta(tree& root);
 
-	/* Returns the integer score of the given board 
+	/* Returns the highest heuristic value for all children of current if we
+	 * look depth moves ahead
+	 * @param current: tree representing current state
+	 * @param depth: how many moves to look ahead
+	 * @param alpha: the current alpha value
+	 * @param beta: the current beta value
+	 */
+	const int maximize(tree& current, size_t depth, int alpha, int beta);
+
+	/* Exactly like maximize, except we're going for lowest heuristic value. */
+	const int minimize(tree& current, size_t depth, int alpha, int beta);
+
+	/* Heuristic function to return score of the given board 
 	 * @param board: the board you want scored
 	 */
-	int scoreBoard(std::string& board);
+	const int scoreBoard(const std::vector<std::string>& board);
 
-	/* Does the given board have a winning move for whoever's turn it is?
+	/* Did the most recent move result in a win?
 	 * @param board: the board you want evaluated
-	 * @param myTurn: is it my turn? (my killer move or his?)
+	 * @param myTurn: did I just move?
 	 */
-	bool hasKillerMove(std::string& board, bool myTurn);
+	const bool winningMove(const std::vector<std::string>& board, const bool myTurn);
+
+	const std::vector<std::string> makeMove(
+		const std::vector<std::string>& board, const size_t move, const bool myTurn);
 
 }
 
