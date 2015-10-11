@@ -17,13 +17,17 @@ namespace MiniMax {
 	struct gameState {
 		unsigned int score;
 		bool hasWinningMove;
+		std::string board;
 	};
 
 	struct tree {
-		tree* parent;
-		std::unique_ptr<tree> firstChild;
-		std::unique_ptr<tree> nextSibling;
+		tree* children;
 		gameState state;
+		int alpha;
+		int beta;
+		tree() {}
+		tree(unsigned int m) { children = new tree[m]; }
+		~tree() { delete children; }
 	};
 
 	unsigned int alphaBeta(gameState& state);
