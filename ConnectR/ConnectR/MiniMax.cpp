@@ -17,13 +17,14 @@ const size_t MiniMax::alphaBeta(tree& root) {
 		root, 6, std::numeric_limits<int>::min(),
 		std::numeric_limits<int>::max()
 	);
+	// find the child that has score v
 	for (size_t i = 0; i < root.children.size(); ++i) {
 		if (root.children[i].score == v) {
 			return i;
 		}
 	}
-
-	return 0;
+	// if all else fails, pick the middle
+	return root.children.size() / 2;
 
 }
 
