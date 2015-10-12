@@ -105,3 +105,16 @@ const bool MiniMax::winningMove(const std::vector<std::string>& board, const boo
 
 }
 
+const std::vector<std::string> makeMove(
+    const std::vector<std::string>& board, const size_t move, const bool myTurn) {
+
+    /* Return a new board after making the requested move */
+
+    // We represent our tokens as Xs and theirs as Os
+    char token = myTurn ? 'X' : 'O';
+    std::vector<std::string> afterMove = board;
+    afterMove[move] += token;
+    return afterMove;
+
+}
+
