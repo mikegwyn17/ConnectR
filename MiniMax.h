@@ -58,7 +58,7 @@ namespace MiniMax {
         const std::vector<std::string>& board, const bool myTurn);
 
     const std::vector<std::string> makeMove(
-        const std::vector<std::string>& board,
+        const std::vector<std::string> board,
         const size_t move,
         const bool myTurn
     );
