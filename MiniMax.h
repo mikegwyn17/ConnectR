@@ -9,9 +9,9 @@
 #ifndef _MINIMAX_H_
 #define _MINIMAX_H_
 
-#include <string>
-#include <limits>
-#include <vector>
+#include <string>           // because strings are pretty handy
+#include <limits>           // so we can figure out the limits of int
+#include <vector>           // because c arrays are inconvenient for us
 
 namespace MiniMax {
 
@@ -19,50 +19,70 @@ namespace MiniMax {
     struct tree {
         std::vector<tree> children;
         std::vector<std::string> board;
+        size_t R;
+        size_t move;
         int score;
         tree() {}
-        tree(size_t m, std::vector<std::string>& b) {
+        tree(size_t m, std::vector<std::string>& b, size_t mv, size_t _R) {
             children.resize(m);
             board = b;
+            move = mv;
+            R = _R;
+        }
+        tree(const tree& other) {
+            children.resize(other.children.size());
+            board = other.board;
+            R = other.R;
         }
     };
 
-    /* Returns the index of the child node of root representing the best move
-     * found.
-     * @param root: tree representing current state
+    /* Returns the best move we can find
+     * @param state: tree representing current state
      */
-    const size_t alphaBeta(tree& root);
+    size_t alphaBeta(tree& state);
 
-    /* Returns the highest heuristic value for all children of current if we
-     * look depth moves ahead
+    /* Our Turn: Take the score of our highest scoring child
      * @param current: tree representing current state
      * @param depth: how many moves to look ahead
      * @param alpha: the current alpha value
      * @param beta: the current beta value
      */
-    const int maximize(tree& current, size_t depth, int alpha, int beta);
+    void maximize(tree& state, size_t depth, int alpha, int beta);
 
-    /* Exactly like maximize, except we're going for lowest heuristic value. */
-    const int minimize(tree& current, size_t depth, int alpha, int beta);
+    /* Just like maximize, except it's their turn so take the lowest score */
+    void minimize(tree& state, size_t depth, int alpha, int beta);
 
-    /* Heuristic function to return score of the given board 
-     * @param board: the board you want scored
+    /* Heuristic function to score the given state 
+     * @param state: the state to be scored
+     * @param R: number to connect for a win
      */
-    const int scoreBoard(const std::vector<std::string>& board);
+    void scoreState(tree& state);
 
-    /* Did the most recent move result in a win?
-     * @param board: the board you want evaluated
-     * @param myTurn: did I just move?
+    /* Called by scoreBoard on every row, column, and diagonal
+     * @param line: the row, column, or diagonal to score
+     * @param R: how many to connect for a win?
      */
-    const bool winningMove(
-        const std::vector<std::string>& board, const bool myTurn);
+    int scoreLine(const std::string& line, const size_t R);
 
-    const std::vector<std::string> makeMove(
-        const std::vector<std::string> board,
-        const size_t move,
-        const bool myTurn
+    /* Does the given score represent a win?
+     * @param score: the score to evaluate
+     */
+    bool isWin(const int score);
+
+    /* Returns the new state after the move is made.
+     * Throws runtime_error if the move is invalid
+     * @param state: the state before making the move
+     * @param move: the column in which the move is to be made
+     * @param myTurn: is it my move?
+     */
+    MiniMax::tree makeMove(
+        const tree& state, const size_t move, const bool myTurn
     );
+
+    /* Return true if the board is full */
+    bool boardFull(const tree& state);
 
 }
 
 #endif
+
