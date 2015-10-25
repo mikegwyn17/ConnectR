@@ -56,8 +56,6 @@ void MiniMax::maximize(tree& state, size_t depth, int alpha, int beta) {
         try {
             state.children[i] = makeMove(state, i, true);
         } catch (const std::runtime_error&) {
-            state.children.erase(state.children.begin()+i);
-            --i;
             continue;
         }
         minimize(state.children[i], --depth, alpha, beta);
@@ -102,8 +100,6 @@ void MiniMax::minimize(tree& state, size_t depth, int alpha, int beta) {
         try {
             state.children[i] = makeMove(state, i, false);
         } catch (const std::runtime_error&) {
-            state.children.erase(state.children.begin()+i);
-            --i;
             continue;
         }
         maximize(state.children[i], --depth, alpha, beta);
@@ -123,16 +119,16 @@ void MiniMax::scoreState(tree& state) {
 
     /* Score the given state */
 
-    int m = state.board.size();           // num columns
-    int n = state.board[0].length();      // num rows
-    int R = state.R;                      // for my convenience
-    int d = ((m - R) + (n - R) + 1);      // num diags (usable)
-    int s = n - R;                           // anchor point for diags
-    int score = 0;                           // the score we will assign
+    int m = state.board.size();                     // num columns
+    int n = state.board[0].find_last_of("XO ") + 1; // num rows
+    int R = state.R;                                // for my convenience
+    int d = ((m - R) + (n - R) + 1);                // num diags (usable)
+    int s = n - R;                                  // anchor point for diags
+    int score = 0;                                  // the score we will assign
 
-    std::vector<std::string> rows;           // board rows
-    std::vector<std::string> diaD;           // board down diags (usable)
-    std::vector<std::string> diaU;           // board up diags (usable)
+    std::vector<std::string> rows;                  // board rows
+    std::vector<std::string> diaD;                  // board down diags (usable)
+    std::vector<std::string> diaU;                  // board up diags (usable)
 
     // this prevents multiple resize operations and initializes all values
     // in each vector
@@ -147,7 +143,7 @@ void MiniMax::scoreState(tree& state) {
             if ((-1 * s) <= (j - i) && (j - i) <= s) {     // up diags
                 diaU[s - (j - i)] += state.board[i][j];
             }
-            if (s <= (i + j) && (i + j) <= (s + d)) {      // down diags
+            if (s <= (i + j) && (i + j) < (s + d)) {      // down diags
                 diaD[(i + j) - s] += state.board[i][j];
             }
         }
