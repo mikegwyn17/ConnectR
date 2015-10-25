@@ -23,16 +23,36 @@ namespace MiniMax {
         size_t move;
         int score;
         tree() {}
-        tree(size_t m, std::vector<std::string>& b, size_t mv, size_t _R) {
-            children.resize(m);
+        tree(const std::vector<std::string>& b, const size_t& m, const size_t& _R) {
             board = b;
-            move = mv;
+            children.resize(m);
             R = _R;
         }
         tree(const tree& other) {
             children.resize(other.children.size());
             board = other.board;
             R = other.R;
+        }
+        std::string toString() {
+            std::string output = "";
+            std::string separator = "";
+            size_t lastRow = board[0].find_last_of("XO ");
+            for (size_t i = 0; i <= lastRow; ++i) {
+                separator += "+---";
+            }
+            separator += "+\n";
+            for (size_t i = 0; i < board.size(); ++i) {
+                output += separator;
+                for (int j = lastRow; j >= 0; --j) {
+                    output += "| " + board[i][j] + ' ';
+                }
+                output += "|\n";
+            }
+            output += separator;
+            for (size_t i = 0; i < board.size(); ++i) {
+                output += " " + std::to_string (i) + " ";
+            }
+            return output;
         }
     };
 
