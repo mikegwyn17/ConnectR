@@ -11,7 +11,7 @@
 
 #include <string>           // because strings are pretty handy
 #include <limits>           // so we can figure out the limits of int
-#include <vector>           // because c arrays are inconvenient for us
+#include <vector>           // used in several places
 
 namespace MiniMax {
 
@@ -36,21 +36,27 @@ namespace MiniMax {
         std::string toString() {
             std::string output = "";
             std::string separator = "";
-            size_t lastRow = board[0].find_last_of("XO ");
-            for (size_t i = 0; i <= lastRow; ++i) {
+            for (size_t i = 0; i < board.size(); ++i) {
                 separator += "+---";
             }
             separator += "+\n";
-            for (size_t i = 0; i < board.size(); ++i) {
-                output += separator;
-                for (int j = lastRow; j >= 0; --j) {
-                    output += "| " + board[i][j] + ' ';
-                }
-                output += "|\n";
-            }
             output += separator;
+            int topRow = board[0].length() - 1;
+            for (int i = topRow; i >=0; i--) {
+                output += "|";
+                for (auto column : board) {
+                    output += " ";
+                    output += column.at(i);
+                    output += " |";
+                }
+                output += '\n';
+                output += separator;
+            }
+            output += ' ';
             for (size_t i = 0; i < board.size(); ++i) {
-                output += " " + std::to_string (i) + " ";
+                output += ' ';
+                output += std::to_string(i);
+                output += "  ";
             }
             return output;
         }
@@ -67,10 +73,10 @@ namespace MiniMax {
      * @param alpha: the current alpha value
      * @param beta: the current beta value
      */
-    void maximize(tree& state, size_t depth, int alpha, int beta);
+    void maximize(tree& state, int depth, int alpha, int beta);
 
     /* Just like maximize, except it's their turn so take the lowest score */
-    void minimize(tree& state, size_t depth, int alpha, int beta);
+    void minimize(tree& state, int depth, int alpha, int beta);
 
     /* Heuristic function to score the given state 
      * @param state: the state to be scored

@@ -10,6 +10,7 @@
 #include <algorithm>        // min and max and some others
 #include <stdexcept>        // throw some exceptions
 #include <cmath>            // so we can use exponents
+#include <iostream>
 
 size_t MiniMax::alphaBeta(tree& state) {
 
@@ -19,7 +20,11 @@ size_t MiniMax::alphaBeta(tree& state) {
         state, 6, std::numeric_limits<int>::min(),
         std::numeric_limits<int>::max()
     );
-    for (auto child : state.children) {
+    std::cout << "Best score: " << state.score << std::endl << "Child scores:" << std::endl;
+    std::cout << "Num children: " << state.children.size() << std::endl;
+    for (size_t i = 0; i < state.children.size(); ++i) {
+        MiniMax::tree child = state.children[i];
+        std::cout << "Child: " << child.score << std::endl;
         if (child.score == state.score) {
             return child.move;
         }
@@ -28,7 +33,7 @@ size_t MiniMax::alphaBeta(tree& state) {
 
 }
 
-void MiniMax::maximize(tree& state, size_t depth, int alpha, int beta) {
+void MiniMax::maximize(tree& state, int depth, int alpha, int beta) {
 
     /* Our turn:
      * Find the best move from here and take its score for the current state
@@ -36,16 +41,13 @@ void MiniMax::maximize(tree& state, size_t depth, int alpha, int beta) {
 
     if (boardFull(state)) {     // can't go any further from here
         scoreState(state);
-        if (
-            state.score != std::numeric_limits<int>::min() &&
-            state.score != std::numeric_limits<int>::max()
-        ) {
+        if (!isWin(state.score)) {
             state.score = 0;   // a draw
         }
         return;
     }
 
-    if (depth == 0) {       // Base case.  Run the heuristic.
+    if (depth <= 0) {       // Base case.  Run the heuristic.
         scoreState(state);
         return;
     }
@@ -71,7 +73,7 @@ void MiniMax::maximize(tree& state, size_t depth, int alpha, int beta) {
 
 }
 
-void MiniMax::minimize(tree& state, size_t depth, int alpha, int beta) {
+void MiniMax::minimize(tree& state, int depth, int alpha, int beta) {
 
     /* Their turn:
      * Find the worst (for us, best for opponent) move from here and take its
@@ -80,16 +82,13 @@ void MiniMax::minimize(tree& state, size_t depth, int alpha, int beta) {
 
     if (boardFull(state)) {    // can't go any further from here
         scoreState(state);
-        if (
-            state.score != std::numeric_limits<int>::min() &&
-            state.score != std::numeric_limits<int>::max()
-        ) {
+        if (!isWin(state.score)) {
             state.score = 0;   // a draw
         }
         return;
     }
 
-    if (depth == 0) {       // Base case.  Run the heuristic.
+    if (depth <= 0) {       // Base case.  Run the heuristic.
         scoreState(state);
         return;
     }
@@ -120,7 +119,7 @@ void MiniMax::scoreState(tree& state) {
     /* Score the given state */
 
     int m = state.board.size();                     // num columns
-    int n = state.board[0].find_last_of("XO ") + 1; // num rows
+    int n = state.board[0].length() - 1;            // num rows
     int R = state.R;                                // for my convenience
     int d = ((m - R) + (n - R) + 1);                // num diags (usable)
     int s = n - R;                                  // anchor point for diags
@@ -284,10 +283,9 @@ bool MiniMax::boardFull(const tree& state) {
 
     /* Is the board full? */
 
-    size_t top;     // top of the current col
-    for (size_t i = 0; i < state.children.size(); ++i) {
-        top = state.board[i].find_first_not_of("XO");
-        if (top != std::string::npos) {
+    size_t top = state.board[0].length() - 1;
+    for (auto column : state.board) {
+        if (column[top] != 'X' && column[top] != 'O') {
             return false;
         }
     }

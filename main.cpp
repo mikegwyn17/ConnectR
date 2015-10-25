@@ -89,6 +89,9 @@ int main(void) {
         startingBoard[i] = emptyColumn;
     }
     gameState = MiniMax::tree(startingBoard, m, R);
+    for (size_t i = 0; i < m; ++i) {
+    }
+
 
     if (myTurn) {
         move = MiniMax::alphaBeta(gameState);
@@ -104,12 +107,16 @@ int main(void) {
                 std::cout << "Your move: ";
                 std::cin >> input;
                 move = std::stoi(input);
+                if (move >= m) {
+                    std::cout << "What board are you playing on?" << std::endl;
+                    continue;
+                }
                 gameState = makeMove(gameState, move, myTurn);
                 myTurn = true;
                 std::cout << gameState.toString() << std::endl;
-            } catch (std::invalid_argument&) {
+            } catch (const std::invalid_argument&) {
                 std::cerr << BAD_INT << std::endl;
-            } catch (std::runtime_error&) {
+            } catch (const std::runtime_error&) {
                 std::cerr <<
                     "That doesn't seem to be a valid move." << std::endl;
             }
