@@ -22,7 +22,8 @@ int main(void) {
     std::string emptyColumn = "";
 
     std::cout << "Let's play some ConnectR!  We will play on a board with " <<
-        "m columns and n rows.\nConnectR to win!" << std::endl;
+        "m columns and n rows.\nConnectR to win!  I'll be Xs and you'll be Os"
+        << std::endl;
 
     std::cout << "Please provide the following values, or just press " <<
         "[ENTER] to use\nthe default value given in parenthesis." <<
@@ -143,4 +144,3 @@ int main(void) {
     system("pause");
     return 0;
 }
-
