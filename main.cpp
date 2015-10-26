@@ -22,7 +22,8 @@ int main(void) {
     std::string emptyColumn = "";
 
     std::cout << "Let's play some ConnectR!  We will play on a board with " <<
-        "m columns and n rows.\nConnectR to win!" << std::endl;
+        "m columns and n rows.\nConnectR to win!  I'll be Xs and you'll be Os"
+        << std::endl;
 
     std::cout << "Please provide the following values, or just press " <<
         "[ENTER] to use\nthe default value given in parenthesis." <<
@@ -89,9 +90,6 @@ int main(void) {
         startingBoard[i] = emptyColumn;
     }
     gameState = MiniMax::tree(startingBoard, m, R);
-    for (size_t i = 0; i < m; ++i) {
-    }
-
 
     if (myTurn) {
         move = MiniMax::alphaBeta(gameState);
@@ -134,6 +132,7 @@ int main(void) {
         gameState = MiniMax::makeMove(gameState, move, myTurn);
         myTurn = false;
         std::cout << gameState.toString() << std::endl;
+        MiniMax::scoreState(gameState);
         if (MiniMax::isWin(gameState.score)) {
             std::cout << "I win!" << std::endl;
             break;
@@ -142,7 +141,6 @@ int main(void) {
             break;
         }
     }
-
+    system("pause");
     return 0;
 }
-
