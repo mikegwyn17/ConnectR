@@ -20,11 +20,8 @@ size_t MiniMax::alphaBeta(tree& state) {
         state, 6, std::numeric_limits<int>::min(),
         std::numeric_limits<int>::max()
     );
-    std::cout << "Best score: " << state.score << std::endl << "Child scores:" << std::endl;
-    std::cout << "Num children: " << state.children.size() << std::endl;
     for (size_t i = 0; i < state.children.size(); ++i) {
         MiniMax::tree child = state.children[i];
-        std::cout << "Child: " << child.score << std::endl;
         if (child.score == state.score) {
             return child.move;
         }
@@ -60,7 +57,7 @@ void MiniMax::maximize(tree& state, int depth, int alpha, int beta) {
         } catch (const std::runtime_error&) {
             continue;
         }
-        minimize(state.children[i], --depth, alpha, beta);
+        minimize(state.children[i], depth - 1, alpha, beta);
         v = std::max(v, state.children[i].score);
         if (v >= beta) {    // ***PRUNE***
             state.score = v;
@@ -101,7 +98,7 @@ void MiniMax::minimize(tree& state, int depth, int alpha, int beta) {
         } catch (const std::runtime_error&) {
             continue;
         }
-        maximize(state.children[i], --depth, alpha, beta);
+        maximize(state.children[i], depth - 1, alpha, beta);
         v = std::min(v, state.children[i].score);
         if (v <= alpha) {   // ***PRUNE***
             state.score = v;
@@ -205,7 +202,7 @@ int MiniMax::scoreLine (const std::string& line, const size_t R) {
         if (c == 'X') {
             ++countX;
             if (countO > 1 && isAccessible) {
-                if (countO == R && !hasGap) {
+                if (countO >= R && !hasGap) {
                     return std::numeric_limits<int>::min();
                 }
                 score -= int (std::pow(2.0, float (countO - 2)));
@@ -215,7 +212,7 @@ int MiniMax::scoreLine (const std::string& line, const size_t R) {
         } else if (c == 'O') {
             ++countO;
             if (countX > 1 && isAccessible) {
-                if (countX == R && !hasGap) {
+                if (countX >= R && !hasGap) {
                     return std::numeric_limits<int>::max();
                 }
                 score += int (std::pow(2.0, float (countX - 2)));
@@ -226,13 +223,13 @@ int MiniMax::scoreLine (const std::string& line, const size_t R) {
             isAccessible = true;
             if (hasGap) {
                 if (countO > 1) {
-                    if (countO == R && !hasGap) {
+                    if (countO >= R && !hasGap) {
                         return std::numeric_limits<int>::min();
                     }
                     score -= int (std::pow(2.0, float (countO - 2)));
                 }
                 if (countX > 1) {
-                    if (countX == R && !hasGap) {
+                    if (countX >= R && !hasGap) {
                         return std::numeric_limits<int>::max();
                     }
                     score += int (std::pow(2.0, float (countX - 2)));
