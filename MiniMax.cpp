@@ -14,16 +14,23 @@
 size_t MiniMax::alphaBeta(tree& state) {
 
     /* Return the best move we can find */
+    std::vector<int> topMoves;
     maximize(
         state, 6, std::numeric_limits<int>::min(),
         std::numeric_limits<int>::max()
     );
     for (size_t i = 0; i < state.children.size(); ++i) {
         if (state.children[i].score == state.score) {
-            return i;
+            topMoves.push_back(i);
         }
     }
-    return state.children.size() / 2;    // default to middle
+    if (topMoves.size() == 1) {
+        return topMoves[0];
+    }
+    // if we have multiple moves with the top score, pick one randomly
+    int moveIndex = rand() % topMoves.size();
+    return topMoves[moveIndex];
+
 
 }
 
@@ -56,6 +63,10 @@ void MiniMax::maximize(tree& state, int depth, int alpha, int beta) {
         }
         state.children[i].move = i;
         minimize(state.children[i], --depth, alpha, beta);
+        //favor moves in the middle
+        if (i == state.children.size() / 2 && !isWin(state.children[i].score)) {
+            ++state.children[i].score;
+        }
         v = std::max(v, state.children[i].score);
         if (v >= beta) {    // ***PRUNE***
             state.score = v;
@@ -98,6 +109,10 @@ void MiniMax::minimize(tree& state, int depth, int alpha, int beta) {
         }
         state.children[i].move = i;
         maximize(state.children[i], --depth, alpha, beta);
+        //favor moves in the middle
+        if (i == state.children.size() / 2 && !isWin(state.children[i].score)) {
+            --state.children[i].score;
+        }
         v = std::min(v, state.children[i].score);
         if (v <= alpha) {   // ***PRUNE***
             state.score = v;
@@ -120,10 +135,6 @@ void MiniMax::scoreState(tree& state) {
     int d = ((m - R) + (n - R) + 1);                // num diags (usable)
     int s = n - R;                                  // anchor point for diags
     int score = 0;                                  // the score we will assign
-
-    if (state.move == m / 2) {
-        score += (R * R);
-    }
 
     std::vector<std::string> rows;                  // board rows
     std::vector<std::string> diaD;                  // board down diags (usable)
