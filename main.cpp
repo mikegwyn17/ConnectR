@@ -89,9 +89,6 @@ int main(void) {
         startingBoard[i] = emptyColumn;
     }
     gameState = MiniMax::tree(startingBoard, m, R);
-    for (size_t i = 0; i < m; ++i) {
-    }
-
 
     if (myTurn) {
         move = MiniMax::alphaBeta(gameState);
@@ -134,6 +131,7 @@ int main(void) {
         gameState = MiniMax::makeMove(gameState, move, myTurn);
         myTurn = false;
         std::cout << gameState.toString() << std::endl;
+        MiniMax::scoreState(gameState);
         if (MiniMax::isWin(gameState.score)) {
             std::cout << "I win!" << std::endl;
             break;
@@ -142,7 +140,7 @@ int main(void) {
             break;
         }
     }
-
+    system("pause");
     return 0;
 }
 
