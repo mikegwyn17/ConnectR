@@ -84,6 +84,11 @@ namespace MiniMax {
      */
     void scoreState(tree& state);
 
+    bool checkblock(
+        const std::string& line, const char btok, const size_t index,
+        const size_t R
+    );
+
     /* Called by scoreBoard on every row, column, and diagonal
      * @param line: the row, column, or diagonal to score
      * @param R: how many to connect for a win?
