@@ -66,6 +66,7 @@ int main(void) {
         try {
             R = std::stoi(input);
             input = "";
+            break;
         } catch (std::invalid_argument&) {
             std::cerr << BAD_INT << std::endl;
         }
@@ -96,8 +97,8 @@ int main(void) {
         std::cout << "My move: " << move << std::endl;
         gameState = MiniMax::makeMove(gameState, move, myTurn);
         myTurn = false;
-        std::cout << gameState.toString() << std::endl;
     }
+    std::cout << gameState.toString() << std::endl;
 
     while (true) {
         while(!myTurn) {
@@ -141,6 +142,5 @@ int main(void) {
             break;
         }
     }
-    system("pause");
     return 0;
 }
