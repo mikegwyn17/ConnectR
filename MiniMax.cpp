@@ -10,6 +10,8 @@
 #include <algorithm>        // min and max and some others
 #include <stdexcept>        // throw some exceptions
 #include <cmath>            // so we can use exponents
+#include <ctime>            // to seed rng
+#include <regex>            // used for scoring
 
 size_t MiniMax::alphaBeta(tree& state) {
 
@@ -28,9 +30,9 @@ size_t MiniMax::alphaBeta(tree& state) {
         return topMoves[0];
     }
     // if we have multiple moves with the top score, pick one randomly
+    srand(time(NULL));
     int moveIndex = rand() % topMoves.size();
     return topMoves[moveIndex];
-
 
 }
 
@@ -40,11 +42,12 @@ void MiniMax::maximize(tree& state, int depth, int alpha, int beta) {
      * Find the best move from here and take its score for the current state
      */
 
-    if (boardFull(state)) {     // can't go any further from here
-        scoreState(state);
-        if (!isWin(state.score)) {
-            state.score = 0;   // a draw
-        }
+    scoreState(state);
+    if (isWin(state.score)) {
+        return;
+    }
+    if (boardFull(state)) {
+        state.score = 0;
         return;
     }
 
@@ -52,6 +55,7 @@ void MiniMax::maximize(tree& state, int depth, int alpha, int beta) {
         scoreState(state);
         return;
     }
+
     // Recursive case.  Take the max of the mins.
     int v = std::numeric_limits<int>::min();
     size_t numChildren = state.children.size();
@@ -86,18 +90,19 @@ void MiniMax::minimize(tree& state, int depth, int alpha, int beta) {
      * score for the current state
      */
 
-    if (boardFull(state)) {    // can't go any further from here
-        scoreState(state);
-        if (!isWin(state.score)) {
-            state.score = 0;   // a draw
-        }
+    scoreState(state);
+    if (isWin(state.score)) {
+        return;
+    }
+    if (boardFull(state)) {
+        state.score = 0;
         return;
     }
 
     if (depth <= 0) {       // Base case.  Run the heuristic.
-        scoreState(state);
         return;
     }
+
     // Recursive case.  Take the min of the maxes.
     int v = std::numeric_limits<int>::max();
     size_t numChildren = state.children.size();
@@ -158,6 +163,42 @@ void MiniMax::scoreState(tree& state) {
             }
         }
     }
+
+    int col = state.move;
+    if (col < 0 || col >= (int) state.board.size()) {
+        state.score = 0;
+        return;
+    }
+    int row = state.board[col].find_last_of("XO");
+    int diU = s - (col - row);
+    int diD = (col + row) - (s + 1);
+    std::string c = state.board[col];
+    std::string r = rows[row];
+    char placed = c.at(row);
+    bool blocked = false;
+    std::string D;
+    if (diD >= 0 && diD < (int) diaD.size()) {
+        D = diaD[diD];
+        int x = (col + row >= s + R) ? col - ((col + row) - n) : col;
+        blocked |= checkblock(D, placed, x, R);
+    }
+    std::string U;
+    if (diU >=0 && diU < (int) diaU.size()) {
+        U = diaU[diU];
+        int x = (col - row >= 1) ? col - (col - row) : col;
+        blocked |= checkblock(U, placed, x, R);
+    }
+    blocked |= (
+        checkblock(c, placed, row, R) ||
+        checkblock(r, placed, col, R)
+    );
+    if (blocked) {
+        state.score =  (placed == 'X') ?
+            std::numeric_limits<int>::max() - 2 :
+            std::numeric_limits<int>::min() + 2;
+        return;
+    }
+
     // score all the things
     for (std::string& column : state.board) {
         int s = scoreLine(column, R);
@@ -196,6 +237,31 @@ void MiniMax::scoreState(tree& state) {
 
 }
 
+bool MiniMax::checkblock(
+    const std::string& line, const char btok, const size_t index, const size_t R
+) {
+    char otok = (btok == 'X') ? 'O' : 'X';
+    int count = 0;
+    for (size_t i = index + 1; i < line.length(); ++i) {
+        if (line.at(i) == otok) {
+            ++count;
+        } else {
+            break;
+        }
+    }
+    for (int i = index - 1; i >= 0; --i) {
+        if (line.at(i) == otok) {
+            ++count;
+        } else {
+            break;
+        }
+    }
+    if (count >= (int) R - 1) {
+        return true;
+    }
+    return false;
+}
+
 int MiniMax::scoreLine (const std::string& line, const size_t R) {
 
     size_t countX, countO;           // for counting Xs Os and spaces
@@ -214,10 +280,10 @@ int MiniMax::scoreLine (const std::string& line, const size_t R) {
         xWin += 'X';
         oWin += 'O';
     }
-
-    if (line.find(xWin) != std::string::npos) {
+    // check for a win first
+    if (line.find(oWin) != std::string::npos) {
         return std::numeric_limits<int>::max();
-    } else if (line.find(oWin) != std::string::npos) {
+    } else if (line.find(xWin) != std::string::npos) {
         return std::numeric_limits<int>::min();
     }
 
@@ -241,9 +307,11 @@ int MiniMax::scoreLine (const std::string& line, const size_t R) {
             if (hasGap) {
                 if (countO > 1) {
                     score -= int (std::pow(2.0, float (countO - 2)));
+//                    ++score;    // not quite as good as contiguous
                 }
                 if (countX > 1) {
                     score += int (std::pow(2.0, float (countX - 2)));
+//                    --score;    // not quite as good as contiguous
                 }
                 countO = 0;
                 countX = 0;
@@ -299,3 +367,4 @@ bool MiniMax::boardFull(const tree& state) {
     }
     return true;
 }
+
